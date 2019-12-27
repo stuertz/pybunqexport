@@ -10,6 +10,14 @@ import sys
 from bunq.sdk import client
 from bunq.sdk import context
 from bunq.sdk.model import generated
+"""
+Connect to bunq api and create a csv file with all latest payments.
+
+'mode' lexware is to support importing the csv into Lexware
+Finazmanger via 'Datei / Export/Import / Datenimport... / Umsätze', or
+even better with the Vorlagen.dat (FM does not support isodates) 
+
+"""
 
 _log = logging.getLogger(__name__)
 
@@ -61,10 +69,13 @@ def exportcsv(fname, payments, mode):
                 writer.writeheader()
                 first = False
             if mode == 'lexware':
-                # FM does not understand ISO Format Timestamps, needs DD.MM.YYYY
+                # FM does not understand ISO Format Timestamps, needs
+                # DD.MM.YYYY
                 flatp['created'] = fmt_date(flatp['created'], "%d.%m.%Y")
                 flatp['updated'] = fmt_date(flatp['updated'], "%d.%m.%Y")
-            _log.info('%s %8s %4s %-30s %s', flatp['created'], flatp['amount_value'], flatp['amount_currency'], flatp['counterparty_alias_name'], flatp['description'])
+            _log.info('%s %8s %4s %-30s %s', flatp['created'],
+                      flatp['amount_value'], flatp['amount_currency'],
+                      flatp['counterparty_alias_name'], flatp['description'])
             writer.writerow(flatp)
     _log.info("Wrote %s", fname)
 
@@ -78,9 +89,12 @@ def main(fname, conf, no_of_payments, mode):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--conf', default='bunq-sandbox.conf')
-    parser.add_argument('--out', '-o', default=None)
-    parser.add_argument('--payments', default=50)
+    parser.add_argument('--conf', default='bunq-sandbox.conf',
+                        help='api config file')
+    parser.add_argument('--outfile', '-o', default=None,
+                        help='name of the export csv file')
+    parser.add_argument('--payments', default=50,
+                        help='Number of payments')
     parser.add_argument('--verbose', '-v', default=False, action='store_true')
     parser.add_argument('--mode', choices=['raw', 'lexware'], default='raw')
 
