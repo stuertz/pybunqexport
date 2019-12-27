@@ -49,9 +49,10 @@ def fmt_date(dateval, fmt):
 def exportcsv(fname, payments, mode):
     # Create a csv export from bunq data
     first = True
+    user = generated.endpoint.User.get().value.get_referenced_object()
     if fname is None:
-        user = generated.endpoint.User.get().value.get_referenced_object()
         fname = '%s.csv' % user.id_
+    _log.info(f'Payments for {user.display_name}')
     with open(fname, 'w', newline='') as csvfile:
         for p in payments:
             flatp = flatten(json.loads(p.to_json()))
@@ -63,7 +64,7 @@ def exportcsv(fname, payments, mode):
                 # FM does not understand ISO Format Timestamps, needs DD.MM.YYYY
                 flatp['created'] = fmt_date(flatp['created'], "%d.%m.%Y")
                 flatp['updated'] = fmt_date(flatp['updated'], "%d.%m.%Y")
-            _log.debug(flatp)
+            _log.info('%s %8s %4s %-30s %s', flatp['created'], flatp['amount_value'], flatp['amount_currency'], flatp['counterparty_alias_name'], flatp['description'])
             writer.writerow(flatp)
     _log.info("Wrote %s", fname)
 
