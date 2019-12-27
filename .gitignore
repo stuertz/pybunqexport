@@ -1,6 +1,10 @@
-src/*.csv
-src/__pycache__
-src/tests/__pycache__
-src/bunq-sandbox.conf
-src/bunq-production.conf
+bunq2csv/*.csv
+bunq2csv/__pycache__
+bunq2csv/tests/__pycache__
+bunq2csv/bunq-sandbox.conf
+bunq2csv/bunq-production.conf
+bunq2csv.egg-info/
 *~
+build/
+dist/
+*.py[cod]
