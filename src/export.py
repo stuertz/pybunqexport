@@ -1,4 +1,4 @@
-#!/usr/bin/env .venv/bin/python -W ignore
+#!/usr/bin/env python -W ignore
 import argparse
 import collections
 import csv
@@ -101,4 +101,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO,
                         stream=sys.stderr)
-    main(args.out, args.conf, args.payments, args.mode)
+    main(args.outfile, args.conf, args.payments, args.mode)
