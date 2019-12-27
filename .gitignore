@@ -1,5 +1,6 @@
 src/*.csv
 src/__pycache__
+src/tests/__pycache__
 src/bunq-sandbox.conf
 src/bunq-production.conf
 *~
