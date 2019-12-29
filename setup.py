@@ -66,12 +66,17 @@ setup(
     keywords='open-banking sepa bunq finance api payment csv lexware finanzmanager',
 
     # Packages of the project. "find_packages()" lists all the project packages.
-    packages=find_packages(exclude=['contrib', 'docs', 'tests', 'examples',
-                                    'assets', '.idea', 'run.py']),
+    packages=find_packages(exclude=['tests']),
 
     # Run-time dependencies of the project. These will be installed by pip.
     install_requires=['bunq_sdk', 'pandas'],
     extras_require={
         'dev': ['nose'],
     },
+    entry_points={
+        'console_scripts': [
+            'bunqexport = bunqexport.export:main',
+        ],
+    },
+    include_package_data=True,
 )

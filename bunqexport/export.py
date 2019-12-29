@@ -1,6 +1,5 @@
 #!/usr/bin/env python -W ignore
 import argparse
-import collections
 import csv
 import datetime
 import json
@@ -98,7 +97,7 @@ def balances():
                   f"{aa.balance.value}")
 
 
-def main(fname, conf, no_of_payments, mode):
+def _export(fname, conf, no_of_payments, mode):
     _log.info("Using conf: %s", conf)
     _setup_context(conf)
     user = generated.endpoint.User.get().value.get_referenced_object()
@@ -113,7 +112,7 @@ def main(fname, conf, no_of_payments, mode):
     context.BunqContext.api_context().save(conf)
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--conf', default='bunq-sandbox.conf',
                         help='api config file')
@@ -128,4 +127,8 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO,
                         format="[%(levelname)-7s] %(message)s",
                         stream=sys.stderr)
-    main(args.outfile, args.conf, args.payments, args.mode)
+    _export(args.outfile, args.conf, args.payments, args.mode)
+
+
+if __name__ == '__main__':
+    main()
