@@ -3,9 +3,10 @@ bunq-sandbox.conf
 bunq-production.conf
 *~
 *.py[cod]
+.DS_Store
 
-bunq2csv/__pycache__
-bunq2csv/tests/__pycache__
-bunq2csv.egg-info/
+bunqexport/__pycache__
+bunqexport/tests/__pycache__
+bunqexport.egg-info/
 build/
 dist/
