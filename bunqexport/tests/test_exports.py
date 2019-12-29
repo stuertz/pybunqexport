@@ -5,10 +5,10 @@ from .. import export
 
 class TestExports(unittest.TestCase):
     def test_flatten(self):
-        self.assertEqual(export._flatten({}), {})
+        self.assertEqual(export.Payments.flatten({}), {})
 
     def test_flatten2(self):
-        res = export._flatten({
+        res = export.Payments.flatten({
             'a': {
                 'a': 'value',
                 'b': {
@@ -24,8 +24,8 @@ class TestExports(unittest.TestCase):
         
     def test_fmt_date(self):
         d = "2019-12-23 09:56:48.004134"
-        self.assertEqual(export._fmt_date(d, "%d.%m.%Y"), "23.12.2019")
+        self.assertEqual(export.Payments.fmt_date(d, "%d.%m.%Y"), "23.12.2019")
 
     def test_fmt_date_empty(self):
-        self.assertEqual(export._fmt_date("", "%d.%m.%Y"), "")
+        self.assertEqual(export.Payments.fmt_date("", "%d.%m.%Y"), "")
         

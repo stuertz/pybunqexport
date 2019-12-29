@@ -7,6 +7,8 @@ import json
 import logging
 import sys
 
+import pandas
+
 from bunq.sdk import client
 from bunq.sdk import context
 from bunq.sdk.model import generated
@@ -15,7 +17,7 @@ Connect to bunq api and create a csv file with all latest payments.
 
 'mode' lexware is to support importing the csv into Lexware
 Finazmanger via 'Datei / Export/Import / Datenimport... / Umsätze', or
-even better with the Vorlagen.dat (FM does not support isodates) 
+even better with the Vorlagen.dat (FM does not support isodates)
 
 """
 
@@ -38,62 +40,76 @@ def _get_all_payments(count):
         params=pagination.url_params_count_only).value
 
 
-def _flatten(d, parent_key='', sep='_'):
-    items = []
-    for k, v in d.items():
-        new_key = parent_key + sep + k if parent_key else k
-        if isinstance(v, collections.MutableMapping):
-            items.extend(_flatten(v, new_key, sep=sep).items())
-        else:
-            items.append((new_key, v))
-    return collections.OrderedDict(items)
+class Payments():
+    def __init__(self, payments):
+        data = (json.loads(p.to_json()) for p in reversed(payments))
+        self.payments = pandas.io.json.json_normalize(data)
+
+    @classmethod
+    def fmt_date(cls, dateval, fmt):
+        if not dateval:
+            return ""
+        # FIXME: not with py36 :-(
+        # dt = datetime.datetime.fromisoformat(dateval)
+        dt = datetime.datetime.strptime(dateval[:10], "%Y-%m-%d")
+        return dt.strftime(fmt)
+
+    def log(self):
+        _log.info("\n%s", self.payments)
+
+    def csv(self, fname, mode):
+        # Create a csv export from bunq data
+        fname += '.csv'
+        with open(fname, 'w', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=self.payments.columns.values)
+            writer.writeheader()
+            for _, row in self.payments.iterrows():
+                if mode == 'lexware':
+                    # FM does not understand ISO Format Timestamps, needs
+                    # DD.MM.YYYY
+                    row['created'] = self.fmt_date(row['created'], "%d.%m.%Y")
+                    row['updated'] = self.fmt_date(row['updated'], "%d.%m.%Y")
+                writer.writerow(dict(row.items()))
+        _log.info("Wrote %s", fname)
+
+    def json(self, fname):
+        # Create a csv export from bunq data
+        fname += '.json'
+        with open(fname, 'w', newline='') as jsonfile:
+            json.dump([dict(row) for _, row in self.payments.iterrows()],
+                      jsonfile)
+        _log.info("Wrote %s", fname)
+
+    def __len__(self):
+        return len(self.payments)
 
 
-def _fmt_date(dateval, fmt):
-    if not dateval:
-        return ""
-    # FIXME: not with py36 :-(
-    # dt = datetime.datetime.fromisoformat(dateval)
-    dt = datetime.datetime.strptime(dateval[:10], "%Y-%m-%d")
-    return dt.strftime(fmt)
+def balances():
+    pagination = client.Pagination()
+    pagination.count = 50
 
+    all_accounts = generated.endpoint.MonetaryAccountBank.list(
+        pagination.url_params_count_only).value
 
-def _exportcsv(fname, payments, mode):
-    # Create a csv export from bunq data
-    first = True
-    with open(fname, 'w', newline='') as csvfile:
-        for p in reversed(payments):
-            flatp = _flatten(json.loads(p.to_json()))
-            if first:
-                writer = csv.DictWriter(csvfile, fieldnames=flatp.keys())
-                writer.writeheader()
-                first = False
-            if mode == 'lexware':
-                # FM does not understand ISO Format Timestamps, needs
-                # DD.MM.YYYY
-                flatp['created'] = _fmt_date(flatp['created'], "%d.%m.%Y")
-                flatp['updated'] = _fmt_date(flatp['updated'], "%d.%m.%Y")
-            _log.info('%s %7s %3s %-8s %-10s %-40s %s', flatp['created'],
-                      flatp['amount_value'], flatp['amount_currency'],
-                      flatp['sub_type'], flatp['type'],
-                      
-                      flatp['counterparty_alias_name'], flatp['description'])
-            #for k,v in flatp.items():
-            #    print (k, v)
-            writer.writerow(flatp)
-    _log.info("Wrote %s", fname)
+    for aa in (monetary_account_bank
+               for monetary_account_bank in all_accounts
+               if monetary_account_bank.status == "ACTIVE"):
+        _log.info(f"Balance: {aa.description} {aa.balance.currency} "
+                  f"{aa.balance.value}")
 
 
 def main(fname, conf, no_of_payments, mode):
     _log.info("Using conf: %s", conf)
     _setup_context(conf)
-    payments = _get_all_payments(no_of_payments)
     user = generated.endpoint.User.get().value.get_referenced_object()
     if fname is None:
-        fname = '%s.csv' % user.id_
+        fname = '%s' % user.id_
+    payments = Payments(_get_all_payments(no_of_payments))
     _log.info(f'{len(payments)} Payments for {user.display_name}')
-    _exportcsv(fname, payments, mode)
-    _log.info(f'Balance: {payments[0].balance_after_mutation.currency} {payments[0].balance_after_mutation.value}')
+    payments.log()
+    payments.csv(fname, mode)
+    payments.json(fname)
+    balances()
     context.BunqContext.api_context().save(conf)
 
 

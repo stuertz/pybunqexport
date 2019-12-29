@@ -1,1 +1,2 @@
 bunq_sdk
+pandas

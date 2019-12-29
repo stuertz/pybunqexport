@@ -1,4 +1,5 @@
 *.csv
+*.json
 bunq-sandbox.conf
 bunq-production.conf
 *~
