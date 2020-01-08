@@ -15,10 +15,12 @@ repos:
     rev: v1.4.4
     hooks:
     -   id: autopep8
-# -   repo: https://github.com/pre-commit/mirrors-pylint
-#     rev: v2.4.4
-#     hooks:
-#     -   id: pylint
+-   repo: https://github.com/pre-commit/mirrors-pylint
+    rev: v2.4.4
+    hooks:
+    -   id: pylint
+        entry: python3 -m pylint.__main__
+        language: system
 -   repo: https://github.com/Lucas-C/pre-commit-hooks-safety
     rev: v1.1.0
     hooks:

@@ -91,7 +91,7 @@ class Payments():
         return len(self.payments)
 
 
-class Balances():
+class Balances():  # pylint: disable=R0903
     """
     represent balances of of all active accounts
     """
