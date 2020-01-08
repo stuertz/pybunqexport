@@ -32,22 +32,88 @@ werden. Beim Starten des Importvorgangs
 			<FieldNames>KNOWN</FieldNames>
 			<Table>STATEMENTS</Table>
 			<AddressOverwrite></AddressOverwrite>
-			<Source>X:\1228093.csv</Source>
+			<Source>X:\bunq_1228093.csv</Source>
 			<Targetname>bunq</Targetname><Targetid>33</Targetid>
 			<ColumnPositions></ColumnPositions>
-			<ColumnAssignments>11</ColumnAssignments>
+			<ColumnAssignments>9</ColumnAssignments>
 			<Columns>
-				<Col><Target>0</Target><Source1>10</Source1><Source2>-1</Source2></Col>
-				<Col><Target>1</Target><Source1>17</Source1><Source2>-1</Source2></Col>
-				<Col><Target>2</Target><Source1>16</Source1><Source2>15</Source2></Col>
-				<Col><Target>3</Target><Source1>0</Source1><Source2>-1</Source2></Col>
-				<Col><Target>4</Target><Source1>5</Source1><Source2>-1</Source2></Col>
-				<Col><Target>5</Target><Source1>4</Source1><Source2>-1</Source2></Col>
-				<Col><Target>8</Target><Source1>7</Source1><Source2>-1</Source2></Col>
-				<Col><Target>9</Target><Source1>11</Source1><Source2>-1</Source2></Col>
 				<Col><Target>25</Target><Source1>2</Source1><Source2>-1</Source2></Col>
-				<Col><Target>10</Target><Source1>9</Source1><Source2>-1</Source2></Col>
-				<Col><Target>11</Target><Source1>12</Source1><Source2>-1</Source2></Col>
+				<Col><Target>0</Target><Source1>2</Source1><Source2>-1</Source2></Col>
+				<Col><Target>1</Target><Source1>9</Source1><Source2>-1</Source2></Col>
+				<Col><Target>3</Target><Source1>17</Source1><Source2>-1</Source2></Col>
+				<Col><Target>5</Target><Source1>13</Source1><Source2>-1</Source2></Col>
+				<Col><Target>9</Target><Source1>17</Source1><Source2>19</Source2></Col>
+				<Col><Target>8</Target><Source1>3</Source1><Source2>-1</Source2></Col>
+				<Col><Target>4</Target><Source1>14</Source1><Source2>-1</Source2></Col>
+				<Col><Target>2</Target><Source1>4</Source1><Source2>-1</Source2></Col>
+			</Columns>
+		</ITEM>
+		<ITEM>
+			<Name>T-Online Import</Name>
+			<Type>2</Type>
+			<Format>TXT</Format>
+			<Steps>4</Steps>
+			<Filter>Text- oder CSV-Datei (*.txt;*.csv)|*.txt;*.csv</Filter>
+			<Description>Vorgefertigte Importvorlage zur Dateiübernahme aus T-Online.
+Eine Beschreibung zur Vorgehensweise finden
+Sie in der Hilfe unter "Überblick Datenimport".
+            </Description>
+			<CurrencyFormat>COMMA</CurrencyFormat>
+			<DateFormat>TT.MM.JJJJ</DateFormat>
+			<FieldSeparator>NONE</FieldSeparator>
+			<Divider>SEMICOLON</Divider>
+			<TextDivider></TextDivider>
+			<StartInRow>1</StartInRow>
+			<Style>FLOATING</Style>
+			<FieldNames>KNOWN</FieldNames>
+			<Table>TRANSACTION</Table>
+			<Source></Source>
+			<AddressOverwrite></AddressOverwrite>
+			<Targetname></Targetname>
+			<Targetid>5</Targetid>
+			<ColumnPositions></ColumnPositions>
+			<ColumnAssignments>8</ColumnAssignments>
+			<Columns>
+				<Col>
+					<Target>0</Target>
+					<Source1>5</Source1>
+					<Source2>-1</Source2>
+				</Col>
+				<Col>
+					<Target>1</Target>
+					<Source1>6</Source1>
+					<Source2>-1</Source2>
+				</Col>
+				<Col>
+					<Target>2</Target>
+					<Source1>7</Source1>
+					<Source2>-1</Source2>
+				</Col>
+				<Col>
+					<Target>3</Target>
+					<Source1>9</Source1>
+					<Source2>-1</Source2>
+				</Col>
+				<Col>
+					<Target>4</Target>
+					<Source1>10</Source1>
+					<Source2>-1</Source2>
+				</Col>
+				<Col>
+					<Target>5</Target>
+					<Source1>11</Source1>
+					<Source2>-1</Source2>
+				</Col>
+				<Col>
+					<Target>8</Target>
+					<Source1>8</Source1>
+					<Source2>-1</Source2>
+				</Col>
+				<Col>
+					<Target>6</Target>
+					<Source1>12</Source1>
+					<Source2>-1</Source2>
+				</Col>
 			</Columns>
 		</ITEM>
 	</PROFILES>
