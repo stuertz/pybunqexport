@@ -1,5 +1,5 @@
 #!/usr/bin/env python -W ignore
-# -*- coding: utf-8; mode: python -*-
+# -*- coding: utf-8 -*-
 """
 Connect to bunq api and create a csv file with all latest payments.
 
@@ -22,12 +22,12 @@ from bunq.sdk.model import generated
 
 __all__ = ['main']
 
-_log = logging.getLogger(__name__)
+_log = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 def _setup_context(conf):
     """setup the context (login, etc) to work with bunq api"""
-    _log.info("Using conf: %s", conf)
+    _log.info('Using conf: %s', conf)
     api_context = context.ApiContext.restore(conf)
     api_context.ensure_session_active()
     api_context.save(conf)
@@ -48,6 +48,7 @@ class Payments():
     """
     Abstraction over bunq payments using a pandas dataframe
     """
+
     def __init__(self, payments):
         data = (json.loads(p.to_json()) for p in reversed(payments))
         self.payments = pandas.io.json.json_normalize(data)
@@ -66,8 +67,8 @@ class Payments():
             index=False,
             justify='left',
             formatters={
-                'created': lambda x: x.strftime("%d.%m.%Y"),
-                'description': lambda x: x.replace("\n", " ").strip(),
+                'created': lambda x: x.strftime('%d.%m.%Y'),
+                'description': lambda x: x.replace('\n', ' ').strip(),
             })
 
     def to_csv(self, fname, mode):
@@ -78,13 +79,13 @@ class Payments():
                                  index=False, line_terminator='\r\n')
         else:
             self.payments.to_csv(fname, index=False)
-        _log.info("Wrote %s", fname)
+        _log.info('Wrote %s', fname)
 
     def to_json(self, fname):
         """Create a json export from bunq data"""
         fname += '.json'
         self.payments.to_json(fname, orient='records', date_format='iso')
-        _log.info("Wrote %s", fname)
+        _log.info('Wrote %s', fname)
 
     def __len__(self):
         return len(self.payments)
@@ -94,6 +95,7 @@ class Balances():
     """
     represent balances of of all active accounts
     """
+
     def __init__(self):
         pagination = client.Pagination()
         pagination.count = 50
@@ -105,10 +107,10 @@ class Balances():
             aacc.description: (aacc.balance.currency, aacc.balance.value)
             for aacc in (monetary_account_bank
                          for monetary_account_bank in all_accounts
-                         if monetary_account_bank.status == "ACTIVE")}
+                         if monetary_account_bank.status == 'ACTIVE')}
 
     def __repr__(self):
-        return "\n".join((f"{k}: {v[1]} {v[0]}"
+        return '\n'.join((f'{k}: {v[1]} {v[0]}'
                           for k, v in self.balances.items()))
 
 
@@ -140,7 +142,7 @@ def main():
 
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO,
-                        format="[%(levelname)-7s] %(message)s",
+                        format='[%(levelname)-7s] %(message)s',
                         stream=sys.stderr)
     # connect
     _setup_context(args.conf)

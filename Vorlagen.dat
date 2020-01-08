@@ -17,10 +17,10 @@
 			<Steps>4</Steps>
 			<Filter>Text- oder CSV-Datei (*.txt;*.csv)|*.txt;*.csv</Filter>
 			<Description>Textbasierte Dateien, wie zum Beispiel
-Daten aus Internetseiten von Banken, 
-können mit dieser Vorlage zum Abgleich 
+Daten aus Internetseiten von Banken,
+können mit dieser Vorlage zum Abgleich
 Ihrer onlinefähigen Konten herangezogen
-werden. Beim Starten des Importvorgangs 
+werden. Beim Starten des Importvorgangs
 öffnet sich automatisch der Online-Kontoabgleich.</Description>
 			<CurrencyFormat>COMMA</CurrencyFormat>
 			<DateFormat>TT.MM.JJJJ</DateFormat>

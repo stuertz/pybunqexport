@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 A setuptools based setup module.
 
@@ -6,17 +7,17 @@ https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 """
 
-# Always prefer setuptools over distutils
-from setuptools import setup, find_packages
 # To use a consistent encoding
 import codecs
 import os
+# Always prefer setuptools over distutils
+from setuptools import setup, find_packages
 
-here = os.path.abspath(os.path.dirname(__file__))
+HERE = os.path.abspath(os.path.dirname(__file__))
 
 # Get the long description from the README file
-with codecs.open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
+with codecs.open(os.path.join(HERE, 'README.md'), encoding='utf-8') as f:
+    LONG_DESCRIPTION = f.read()
 
 setup(
     name='bunqexport',
@@ -27,8 +28,8 @@ setup(
     version='0.0.1',
 
     description='Convert bunq payments to csv',
-    long_description=long_description,
-    long_description_content_type="text/markdown",
+    long_description=LONG_DESCRIPTION,
+    long_description_content_type='text/markdown',
 
     # The project's main homepage.
     url='https://github.com/stuertz/pybunqexport',
@@ -63,15 +64,18 @@ setup(
     python_requires='>=3.6',
 
     # Keywords related to the project
-    keywords='open-banking sepa bunq finance api payment csv lexware finanzmanager',
+    keywords=('open-banking sepa bunq finance api payment csv lexware '
+              'finanzmanager'),
 
-    # Packages of the project. "find_packages()" lists all the project packages.
+    # Packages of the project. "find_packages()" lists all the project
+    # packages.
     packages=find_packages(exclude=['tests']),
 
     # Run-time dependencies of the project. These will be installed by pip.
     install_requires=['bunq_sdk', 'pandas'],
     extras_require={
-        'dev': ['nose'],
+        'dev': ['nose', 'pre-commit', 'safety', 'flake8', 'pylint',
+                'autopep8'],
     },
     entry_points={
         'console_scripts': [
