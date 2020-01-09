@@ -5,6 +5,7 @@ bunq-production.conf
 *~
 *.py[cod]
 .DS_Store
+.coverage
 
 bunqexport/__pycache__
 bunqexport/tests/__pycache__

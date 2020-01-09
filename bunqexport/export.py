@@ -10,6 +10,7 @@ even better with the Vorlagen.dat (FM does not support isodates)
 """
 
 import argparse
+import io
 import json
 import logging
 import sys
@@ -22,7 +23,7 @@ from bunq.sdk.model import generated
 
 __all__ = ['main']
 
-_log = logging.getLogger(__name__)  # pylint: disable=C0103
+_log = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 
 def _setup_context(conf):
@@ -47,11 +48,12 @@ def _get_all_payments(count):
 class Payments():
     """
     Abstraction over bunq payments using a pandas dataframe
+
+    payments are served in json
     """
 
     def __init__(self, payments):
-        data = (json.loads(p.to_json()) for p in reversed(payments))
-        self.payments = pandas.io.json.json_normalize(data)
+        self.payments = pandas.io.json.json_normalize(json.loads(payments))
         self.payments['created'] = pandas.to_datetime(self.payments['created'])
         self.payments['updated'] = pandas.to_datetime(self.payments['updated'])
 
@@ -71,27 +73,23 @@ class Payments():
                 'description': lambda x: x.replace('\n', ' ').strip(),
             })
 
-    def to_csv(self, fname, mode):
+    def to_csv(self, fobj, mode=None):
         """Create a csv export from bunq data"""
-        fname += '.csv'
         if mode == 'lexware':
-            self.payments.to_csv(fname, date_format='%d.%m.%Y',
+            self.payments.to_csv(fobj, date_format='%d.%m.%Y',
                                  index=False, line_terminator='\r\n')
         else:
-            self.payments.to_csv(fname, index=False)
-        _log.info('Wrote %s', fname)
+            self.payments.to_csv(fobj, index=False, line_terminator='\r\n')
 
-    def to_json(self, fname):
-        """Create a json export from bunq data"""
-        fname += '.json'
-        self.payments.to_json(fname, orient='records', date_format='iso')
-        _log.info('Wrote %s', fname)
+    def to_json(self, fobj):
+        """Create a json export from flattened (depth=1) bunq data"""
+        self.payments.to_json(fobj, orient='records', date_format='iso')
 
     def __len__(self):
         return len(self.payments)
 
 
-class Balances():  # pylint: disable=R0903
+class Balances():  # pylint: disable=too-few-public-methods
     """
     represent balances of of all active accounts
     """
@@ -118,8 +116,12 @@ def _export(fname, payments, user, mode):
     """Do the exporting in various formats"""
     if fname is None:
         fname = 'bunq_%s' % user.id_
-    payments.to_csv(fname, mode)
-    payments.to_json(fname)
+    with io.open(fname + '.csv', 'w') as fobj:
+        payments.to_csv(fobj, mode)
+        _log.info('Wrote %s', fname + '.csv')
+    with io.open(fname + '.json', 'w') as fobj:
+        payments.to_json(fobj)
+        _log.info('Wrote %s', fname + '.json')
 
 
 def _print_status(payments):
@@ -148,7 +150,11 @@ def main():
     _setup_context(args.conf)
 
     user = generated.endpoint.User.get().value.get_referenced_object()
-    payments = Payments(_get_all_payments(args.payments))
+    data = ('[' +
+            ','.join(p.to_json()
+                     for p in reversed(_get_all_payments(args.payments))) +
+            ']')
+    payments = Payments(data)
     _export(args.outfile, payments, user, args.mode)
     _print_status(payments)
 
