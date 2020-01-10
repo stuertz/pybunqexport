@@ -35,13 +35,15 @@ def _setup_context(conf):
     context.BunqContext.load_api_context(api_context)
 
 
-def _get_all_payments(count):
+def _get_all_payments(count, account_id=None):
     """Fetch all Payments wie bunq api in bunq_sdk format"""
     pagination = client.Pagination()
     pagination.count = count
     result = generated.endpoint.Payment.list(
+        monetary_account_id=account_id,
         params=pagination.url_params_count_only).value
-    _log.info('found %d while fetching last %d Payments', len(result), count)
+    _log.info('found %d while fetching last %d Payments for account %s',
+              len(result), count, account_id)
     return result
 
 
@@ -89,7 +91,7 @@ class Payments():
         return len(self.payments)
 
 
-class Balances():  # pylint: disable=too-few-public-methods
+class Accounts():  # pylint: disable=too-few-public-methods
     """
     represent balances of of all active accounts
     """
@@ -102,32 +104,35 @@ class Balances():  # pylint: disable=too-few-public-methods
             pagination.url_params_count_only).value
 
         self.balances = {
-            aacc.description: (aacc.balance.currency, aacc.balance.value)
+            aacc.id_: (aacc.description, aacc.balance.currency,
+                       aacc.balance.value, aacc.description)
             for aacc in (monetary_account_bank
                          for monetary_account_bank in all_accounts
                          if monetary_account_bank.status == 'ACTIVE')}
 
+    def ids(self):
+        """
+        return tuple of account id and description
+        """
+        for id_, val in self.balances.items():
+            yield id_, val[3]
+
     def __repr__(self):
-        return '\n'.join((f'{k}: {v[1]} {v[0]}'
+        return '\n'.join((f'{v[0]} ({k}): {v[2]} {v[1]}'
                           for k, v in self.balances.items()))
 
 
-def _export(fname, payments, user, mode):
+def _export(fname, payments, user, account_name, mode):
     """Do the exporting in various formats"""
     if fname is None:
         fname = 'bunq_%s' % user.id_
+    fname += '_%s' % account_name
     with io.open(fname + '.csv', 'w') as fobj:
         payments.to_csv(fobj, mode)
         _log.info('Wrote %s', fname + '.csv')
     with io.open(fname + '.json', 'w') as fobj:
         payments.to_json(fobj)
         _log.info('Wrote %s', fname + '.json')
-
-
-def _print_status(payments):
-    """print some status info to stdout"""
-    print(payments)
-    print(Balances())
 
 
 def main():
@@ -148,15 +153,21 @@ def main():
                         stream=sys.stderr)
     # connect
     _setup_context(args.conf)
-
     user = generated.endpoint.User.get().value.get_referenced_object()
-    data = ('[' +
-            ','.join(p.to_json()
-                     for p in reversed(_get_all_payments(args.payments))) +
-            ']')
-    payments = Payments(data)
-    _export(args.outfile, payments, user, args.mode)
-    _print_status(payments)
+
+    accounts = Accounts()
+
+    for account_id, account_name in accounts.ids():
+        data = ('[' +
+                ','.join(p.to_json()
+                         for p in reversed(_get_all_payments(
+                             args.payments, account_id))) +
+                ']')
+        payments = Payments(data)
+        _export(args.outfile, payments, user, account_name, args.mode)
+        print(payments)
+
+    print(accounts)
 
     # disconnect
     context.BunqContext.api_context().save(args.conf)
