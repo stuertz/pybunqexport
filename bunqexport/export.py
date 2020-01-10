@@ -103,6 +103,12 @@ class Accounts():  # pylint: disable=too-few-public-methods
         all_accounts = generated.endpoint.MonetaryAccountBank.list(
             pagination.url_params_count_only).value
 
+        all_accounts.extend(generated.endpoint.MonetaryAccountSavings.list(
+            pagination.url_params_count_only).value)
+
+        all_accounts.extend(generated.endpoint.MonetaryAccountJoint.list(
+            pagination.url_params_count_only).value)
+
         self.balances = {
             aacc.id_: (aacc.description, aacc.balance.currency,
                        aacc.balance.value, aacc.description)
