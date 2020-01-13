@@ -1,6 +1,6 @@
 autopep8
-flake8 
-nose 
-pre-commit 
+flake8
+nose
+pre-commit
 pylint
-safety 
+safety

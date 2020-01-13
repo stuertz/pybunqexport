@@ -15,7 +15,8 @@ with io.open(os.path.join(HERE, 'README.md'), encoding='utf-8') as f:
 with io.open(os.path.join(HERE, 'requirements.txt'), encoding='utf-8') as f:
     REQUIREMENTS = f.readlines()
 
-with io.open(os.path.join(HERE, 'requirements-dev.txt'), encoding='utf-8') as f:
+with io.open(os.path.join(HERE, 'requirements-dev.txt'),
+             encoding='utf-8') as f:
     REQUIREMENTSDEV = f.readlines()
 
 setup(

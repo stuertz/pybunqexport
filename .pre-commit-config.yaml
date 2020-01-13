@@ -26,4 +26,4 @@ repos:
     hooks:
     -   id: python-safety-dependencies-check
 default_language_version:
-    python: python3.6
+    python: python3
