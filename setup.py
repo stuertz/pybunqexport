@@ -8,7 +8,7 @@ https://github.com/pypa/sampleproject
 """
 
 # To use a consistent encoding
-import codecs
+import io
 import os
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
@@ -16,8 +16,12 @@ from setuptools import setup, find_packages
 HERE = os.path.abspath(os.path.dirname(__file__))
 
 # Get the long description from the README file
-with codecs.open(os.path.join(HERE, 'README.md'), encoding='utf-8') as f:
+with io.open(os.path.join(HERE, 'README.md'), encoding='utf-8') as f:
     LONG_DESCRIPTION = f.read()
+
+# Get the long description from the README file
+with io.open(os.path.join(HERE, 'requirements.txt'), encoding='utf-8') as f:
+    REQUIREMENTS = f.readlines()
 
 setup(
     name='bunqexport',
@@ -72,7 +76,7 @@ setup(
     packages=find_packages(exclude=['tests']),
 
     # Run-time dependencies of the project. These will be installed by pip.
-    install_requires=['bunq_sdk', 'pandas'],
+    install_requires=REQUIREMENTS,
     extras_require={
         'dev': ['nose', 'pre-commit', 'safety', 'flake8', 'pylint',
                 'autopep8'],
