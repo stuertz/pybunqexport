@@ -15,6 +15,9 @@ with io.open(os.path.join(HERE, 'README.md'), encoding='utf-8') as f:
 with io.open(os.path.join(HERE, 'requirements.txt'), encoding='utf-8') as f:
     REQUIREMENTS = f.readlines()
 
+with io.open(os.path.join(HERE, 'requirements-dev.txt'), encoding='utf-8') as f:
+    REQUIREMENTSDEV = f.readlines()
+
 setup(
     name='bunqexport',
     version='0.0.1',
@@ -40,8 +43,7 @@ setup(
     packages=find_packages(exclude=['tests']),
     install_requires=REQUIREMENTS,
     extras_require={
-        'dev': ['nose', 'pre-commit', 'safety', 'flake8', 'pylint',
-                'autopep8'],
+        'dev': REQUIREMENTSDEV,
     },
     entry_points={
         'console_scripts': [
