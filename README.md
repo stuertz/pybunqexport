@@ -20,6 +20,7 @@ rest API.
   in timstamps, as expected from `Haufe-Lexware Finanzmanger`, when
   mode is `lexware`
 * Unit testing using `nose`
+* Pre-commit checking with `pre-commit`
 
 ## Usage
 
@@ -29,3 +30,19 @@ Install `bunqexport` and generate an export:
 $ pip install bunqexport
 $ bunqexport --conf bunq-production.conf --mode lexware
 ```
+
+## Contributing
+
+Any contributions are very welcome.
+
+When contributing to this repository, please first discuss the change
+you wish to make via issue with the owners of this repository before
+making a change.
+
+### Pull Request Process
+
+1. Ensure any install or build dependencies are removed before the end
+   of the layer when doing a build.
+2. Document your changes (whereever useful), e.g in `README.md`.
+3. Use `pre-commit` hooks by installing `pip install
+   pre-commit` and run `pre-commit install`.
