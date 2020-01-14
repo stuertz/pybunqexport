@@ -1,7 +1,7 @@
 # -*- mode: Makefile; encoding: utf-8 -*-
 .PHONY:upload all pre-commit tests upload
 
-all: tests pre-commit 
+all: tests pre-commit
 
 pre-commit:
 	pre-commit run --all-files

@@ -3,5 +3,4 @@ flake8
 nose
 pre-commit
 pylint
-safety
 twine
