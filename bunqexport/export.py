@@ -1,11 +1,11 @@
 #!/usr/bin/env python -W ignore
 # -*- coding: utf-8 -*-
-"""
-Connect to bunq api and create a csv file with all latest payments.
+""" Connect to bunq api and create a csv/json file with all latest payments for
+every active account.
 
-'mode' lexware is to support importing the csv into Lexware
-Finazmanger via 'Datei / Export/Import / Datenimport... / Umsätze', or
-even better with the Vorlagen.dat (FM does not support isodates)
+- 'mode' lexware is to support importing the csv into Lexware Finazmanger via
+  'Datei / Export/Import / Datenimport... / Umsätze', or even better with the
+  Vorlagen.dat (FM does not support isodates)
 
 """
 
@@ -58,6 +58,8 @@ class Payments():
         self.payments = pandas.io.json.json_normalize(json.loads(payments))
         self.payments['created'] = pandas.to_datetime(self.payments['created'])
         self.payments['updated'] = pandas.to_datetime(self.payments['updated'])
+        self.payments['description'] = \
+            self.payments['description'].str.replace('\\n', ' ')
 
     def __repr__(self):
         return self.payments.to_string(
@@ -75,17 +77,18 @@ class Payments():
                 'description': lambda x: x.replace('\n', ' ').strip(),
             })
 
-    def to_csv(self, fobj, mode=None):
+    def to_csv(self, path, mode=None):
         """Create a csv export from bunq data"""
-        if mode == 'lexware':
-            self.payments.to_csv(fobj, date_format='%d.%m.%Y',
-                                 index=False, line_terminator='\r\n')
-        else:
-            self.payments.to_csv(fobj, index=False, line_terminator='\r\n')
+        with io.open(path, 'w', encoding='utf-8') as buf:
+            self.payments.to_csv(
+                buf,
+                date_format='%d.%m.%Y' if mode == 'lexware' else None,
+                index=False,
+                line_terminator='\n' if sys.platform == 'win32' else '\r\n')
 
-    def to_json(self, fobj):
+    def to_json(self, path_or_buf):
         """Create a json export from flattened (depth=1) bunq data"""
-        self.payments.to_json(fobj, orient='records', date_format='iso')
+        self.payments.to_json(path_or_buf, orient='records', date_format='iso')
 
     def __len__(self):
         return len(self.payments)
@@ -133,12 +136,10 @@ def _export(fname, payments, user, account_name, mode):
     if fname is None:
         fname = 'bunq_%s' % user.id_
     fname += '_%s' % account_name
-    with io.open(fname + '.csv', 'w') as fobj:
-        payments.to_csv(fobj, mode)
-        _log.info('Wrote %s', fname + '.csv')
-    with io.open(fname + '.json', 'w') as fobj:
-        payments.to_json(fobj)
-        _log.info('Wrote %s', fname + '.json')
+    payments.to_csv(fname + '.csv', mode)
+    _log.info('Wrote %s', fname + '.csv')
+    payments.to_json(fname + '.json')
+    _log.info('Wrote %s', fname + '.json')
 
 
 def main():
