@@ -1,7 +1,6 @@
 *.csv
 *.json
-bunq-sandbox.conf
-bunq-production.conf
+bunq*.conf
 *~
 *.py[cod]
 .DS_Store
