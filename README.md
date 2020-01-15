@@ -1,4 +1,4 @@
-# Bunqexport
+# Bunqexport 🌈
 
 After the some discussion in the lexware Finanzmanger forum, it looks
 like the authors do not feel the need to integrate bunq into their
