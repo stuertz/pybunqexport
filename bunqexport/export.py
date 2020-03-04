@@ -17,8 +17,9 @@ import sys
 
 import pandas
 
-from bunq.sdk import client
-from bunq.sdk import context
+import bunq
+import bunq.sdk.context.api_context
+import bunq.sdk.context.bunq_context
 from bunq.sdk.model import generated
 
 __all__ = ['main']
@@ -29,15 +30,15 @@ _log = logging.getLogger(__name__)  # pylint: disable=invalid-name
 def _setup_context(conf):
     """setup the context (login, etc) to work with bunq api"""
     _log.info('Using conf: %s', conf)
-    api_context = context.ApiContext.restore(conf)
+    api_context = bunq.sdk.context.api_context.ApiContext.restore(conf)
     api_context.ensure_session_active()
     api_context.save(conf)
-    context.BunqContext.load_api_context(api_context)
+    bunq.sdk.context.bunq_context.BunqContext.load_api_context(api_context)
 
 
 def _get_all_payments(count, account_id=None):
     """Fetch all Payments wie bunq api in bunq_sdk format"""
-    pagination = client.Pagination()
+    pagination = bunq.Pagination()
     pagination.count = count
     result = generated.endpoint.Payment.list(
         monetary_account_id=account_id,
@@ -100,7 +101,7 @@ class Accounts():  # pylint: disable=too-few-public-methods
     """
 
     def __init__(self):
-        pagination = client.Pagination()
+        pagination = bunq.Pagination()
         pagination.count = 50
 
         all_accounts = generated.endpoint.MonetaryAccountBank.list(
@@ -177,7 +178,7 @@ def main():
     print(accounts)
 
     # disconnect
-    context.BunqContext.api_context().save(args.conf)
+    bunq.sdk.context.bunq_context.BunqContext.api_context().save(args.conf)
 
 
 if __name__ == '__main__':
