@@ -86,7 +86,7 @@ class Payments():
         self.payments['created'] = pandas.to_datetime(self.payments['created'])
         self.payments['updated'] = pandas.to_datetime(self.payments['updated'])
         self.payments['description'] = \
-            self.payments['description'].str.replace('\\n', ' ')
+            self.payments['description'].str.replace(r'\n', ' ')
 
     def __repr__(self):
         return self.payments.to_string(
