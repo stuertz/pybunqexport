@@ -36,15 +36,37 @@ def _setup_context(conf):
     bunq.sdk.context.bunq_context.BunqContext.load_api_context(api_context)
 
 
+def _iter_all_payments(account_id, count=200):
+    """Iterate over all payments of 'account_id' with steps of 'count'."""
+    result = None
+
+    while result is None or result.value:
+        if result is None:
+            pagination = bunq.Pagination()
+            pagination.count = count  # maximum number
+            params = pagination.url_params_count_only
+        elif result.pagination.has_previous_page():
+            params = result.pagination.url_params_previous_page
+        else:
+            break
+
+        result = generated.endpoint.Payment.list(
+            params=params, monetary_account_id=account_id
+        )
+        _log.info('found %d while fetching last %d Payments for account %s',
+                  len(result.value), count, account_id)
+
+        if not result.value:
+            break
+
+        for payment in result.value:
+            yield payment
+
+
 def _get_all_payments(count, account_id=None):
     """Fetch all Payments wie bunq api in bunq_sdk format"""
-    pagination = bunq.Pagination()
-    pagination.count = count
-    result = generated.endpoint.Payment.list(
-        monetary_account_id=account_id,
-        params=pagination.url_params_count_only).value
-    _log.info('found %d while fetching last %d Payments for account %s',
-              len(result), count, account_id)
+    payments_gen = _iter_all_payments(account_id, 200)
+    result = [next(payments_gen) for _ in range(count)]
     return result
 
 
@@ -150,7 +172,7 @@ def main():
                         help='api config file')
     parser.add_argument('--outfile', '-o', default=None,
                         help='name of the export csv file')
-    parser.add_argument('--payments', default=200,
+    parser.add_argument('--payments', default=200, type=int,
                         help='Number of payments')
     parser.add_argument('--verbose', '-v', default=False, action='store_true')
     parser.add_argument('--mode', choices=['raw', 'lexware'], default='raw')
@@ -166,11 +188,9 @@ def main():
     accounts = Accounts()
 
     for account_id, account_name in accounts.ids():
-        data = ('[' +
-                ','.join(p.to_json()
-                         for p in reversed(_get_all_payments(
-                             args.payments, account_id))) +
-                ']')
+        payments = _get_all_payments(args.payments, account_id)
+        payments_as_json = (p.to_json() for p in reversed(payments))
+        data = '[' + ','.join(payments_as_json) + ']'
         payments = Payments(data)
         _export(args.outfile, payments, user, account_name, args.mode)
         print(payments)
