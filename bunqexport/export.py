@@ -10,7 +10,6 @@ every active account.
 """
 
 import argparse
-import io
 import json
 import logging
 import sys
@@ -105,14 +104,13 @@ class Payments():
                 'description': lambda x: x.replace('\n', ' ').strip(),
             })
 
-    def to_csv(self, path, mode=None):
+    def to_csv(self, path_or_buf, mode=None):
         """Create a csv export from bunq data"""
-        with io.open(path, 'w', encoding='utf-8') as buf:
-            self.payments.to_csv(
-                buf,
-                date_format='%d.%m.%Y' if mode == 'lexware' else None,
-                index=False,
-                line_terminator='\n' if sys.platform == 'win32' else '\r\n')
+        self.payments.to_csv(
+            path_or_buf,
+            date_format='%d.%m.%Y' if mode == 'lexware' else None,
+            index=False,
+            line_terminator='\n' if sys.platform == 'win32' else '\r\n')
 
     def to_json(self, path_or_buf):
         """Create a json export from flattened (depth=1) bunq data"""
