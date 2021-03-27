@@ -9,7 +9,6 @@ repos:
     -   id: check-added-large-files
     -   id: double-quote-string-fixer
     -   id: fix-encoding-pragma
-    -   id: flake8
     -   id: mixed-line-ending
 -   repo: https://github.com/pre-commit/mirrors-autopep8
     rev: HEAD
@@ -21,5 +20,9 @@ repos:
     -   id: pylint
         entry: python -m pylint.__main__
         language: system
+-   repo: https://gitlab.com/pycqa/flake8
+    rev: 3.9.0
+    hooks:
+    -   id: flake8
 default_language_version:
     python: python3
