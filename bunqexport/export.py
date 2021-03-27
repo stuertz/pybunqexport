@@ -121,6 +121,14 @@ class Payments():
     def __len__(self):
         return len(self.payments)
 
+    @classmethod
+    def fetch_account(cls, account_id, count):
+        """Fetch 'count' payments from 'account_id'."""
+        payments = _get_all_payments(count, account_id)
+        payments_as_json = (p.to_json() for p in reversed(payments))
+        data = '[' + ','.join(payments_as_json) + ']'
+        return Payments(data)
+
 
 class Accounts():  # pylint: disable=too-few-public-methods
     """
@@ -193,10 +201,7 @@ def main():
     accounts = Accounts()
 
     for account_id, account_name in accounts.ids():
-        payments = _get_all_payments(args.payments, account_id)
-        payments_as_json = (p.to_json() for p in reversed(payments))
-        data = '[' + ','.join(payments_as_json) + ']'
-        payments = Payments(data)
+        payments = Payments.fetch_account(account_id, args.payments)
         _export(args.outfile, payments, user, account_name, args.mode)
         print(payments)
 
