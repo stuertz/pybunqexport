@@ -181,10 +181,12 @@ def payments_as_dataframe(
     """Fetch payments from all accounts as pandas.DataFrame."""
     _setup_context(conf)
     accounts = Accounts()
-    dfs = [
-        Payments.fetch_account(account_id, payments_per_account).payments
-        for account_id, account_name in accounts.ids()
-    ]
+    dfs = []
+    for account_id, account_name in accounts.ids():
+        df_of_account = Payments.fetch_account(
+            account_id, payments_per_account).payments
+        df_of_account['account_name'] = account_name
+        dfs.append(df_of_account)
     combined_df = pandas.concat(dfs)
     for col in ('amount.value', 'balance_after_mutation.value'):
         combined_df[col] = combined_df[col].astype(float)
