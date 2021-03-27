@@ -66,7 +66,12 @@ def _iter_all_payments(account_id, count=200):
 def _get_all_payments(count, account_id=None):
     """Fetch all Payments wie bunq api in bunq_sdk format"""
     payments_gen = _iter_all_payments(account_id, 200)
-    result = [next(payments_gen) for _ in range(count)]
+    result = []
+    for _ in range(count):
+        try:
+            result.append(next(payments_gen))
+        except StopIteration:
+            break
     return result
 
 
