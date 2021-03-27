@@ -186,6 +186,8 @@ def payments_as_dataframe(
         for account_id, account_name in accounts.ids()
     ]
     combined_df = pandas.concat(dfs)
+    for col in ('amount.value', 'balance_after_mutation.value'):
+        combined_df[col] = combined_df[col].astype(float)
     return combined_df.sort_values('created', ascending=False)
 
 
