@@ -10,7 +10,6 @@ every active account.
 """
 
 import argparse
-import io
 import json
 import logging
 import sys
@@ -22,7 +21,7 @@ import bunq.sdk.context.api_context
 import bunq.sdk.context.bunq_context
 from bunq.sdk.model import generated
 
-__all__ = ['main']
+__all__ = ['main', 'payments_as_dataframe']
 
 _log = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
@@ -66,7 +65,12 @@ def _iter_all_payments(account_id, count=200):
 def _get_all_payments(count, account_id=None):
     """Fetch all Payments wie bunq api in bunq_sdk format"""
     payments_gen = _iter_all_payments(account_id, 200)
-    result = [next(payments_gen) for _ in range(count)]
+    result = []
+    for _ in range(count):
+        try:
+            result.append(next(payments_gen))
+        except StopIteration:
+            break
     return result
 
 
@@ -78,11 +82,11 @@ class Payments():
     """
 
     def __init__(self, payments):
-        self.payments = pandas.io.json.json_normalize(json.loads(payments))
+        self.payments = pandas.json_normalize(json.loads(payments))
         self.payments['created'] = pandas.to_datetime(self.payments['created'])
         self.payments['updated'] = pandas.to_datetime(self.payments['updated'])
         self.payments['description'] = \
-            self.payments['description'].str.replace('\\n', ' ')
+            self.payments['description'].str.replace(r'\n', ' ')
 
     def __repr__(self):
         return self.payments.to_string(
@@ -100,14 +104,13 @@ class Payments():
                 'description': lambda x: x.replace('\n', ' ').strip(),
             })
 
-    def to_csv(self, path, mode=None):
+    def to_csv(self, path_or_buf, mode=None):
         """Create a csv export from bunq data"""
-        with io.open(path, 'w', encoding='utf-8') as buf:
-            self.payments.to_csv(
-                buf,
-                date_format='%d.%m.%Y' if mode == 'lexware' else None,
-                index=False,
-                line_terminator='\n' if sys.platform == 'win32' else '\r\n')
+        self.payments.to_csv(
+            path_or_buf,
+            date_format='%d.%m.%Y' if mode == 'lexware' else None,
+            index=False,
+            line_terminator='\n' if sys.platform == 'win32' else '\r\n')
 
     def to_json(self, path_or_buf):
         """Create a json export from flattened (depth=1) bunq data"""
@@ -115,6 +118,14 @@ class Payments():
 
     def __len__(self):
         return len(self.payments)
+
+    @classmethod
+    def fetch_account(cls, account_id, count):
+        """Fetch 'count' payments from 'account_id'."""
+        payments = _get_all_payments(count, account_id)
+        payments_as_json = (p.to_json() for p in reversed(payments))
+        data = '[' + ','.join(payments_as_json) + ']'
+        return Payments(data)
 
 
 class Accounts():  # pylint: disable=too-few-public-methods
@@ -165,6 +176,23 @@ def _export(fname, payments, user, account_name, mode):
     _log.info('Wrote %s', fname + '.json')
 
 
+def payments_as_dataframe(
+        conf: str = 'bunq-sandbox.conf', payments_per_account: int = 200):
+    """Fetch payments from all accounts as pandas.DataFrame."""
+    _setup_context(conf)
+    accounts = Accounts()
+    dfs = []
+    for account_id, account_name in accounts.ids():
+        df_of_account = Payments.fetch_account(
+            account_id, payments_per_account).payments
+        df_of_account['account_name'] = account_name
+        dfs.append(df_of_account)
+    combined_df = pandas.concat(dfs)
+    for col in ('amount.value', 'balance_after_mutation.value'):
+        combined_df[col] = combined_df[col].astype(float)
+    return combined_df.sort_values('created', ascending=False)
+
+
 def main():
     """main entrypoint"""
     parser = argparse.ArgumentParser()
@@ -188,10 +216,7 @@ def main():
     accounts = Accounts()
 
     for account_id, account_name in accounts.ids():
-        payments = _get_all_payments(args.payments, account_id)
-        payments_as_json = (p.to_json() for p in reversed(payments))
-        data = '[' + ','.join(payments_as_json) + ']'
-        payments = Payments(data)
+        payments = Payments.fetch_account(account_id, args.payments)
         _export(args.outfile, payments, user, account_name, args.mode)
         print(payments)
 
