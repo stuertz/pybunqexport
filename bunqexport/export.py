@@ -22,7 +22,7 @@ import bunq.sdk.context.api_context
 import bunq.sdk.context.bunq_context
 from bunq.sdk.model import generated
 
-__all__ = ['main']
+__all__ = ['main', 'payments_as_dataframe']
 
 _log = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
@@ -83,7 +83,7 @@ class Payments():
     """
 
     def __init__(self, payments):
-        self.payments = pandas.io.json.json_normalize(json.loads(payments))
+        self.payments = pandas.json_normalize(json.loads(payments))
         self.payments['created'] = pandas.to_datetime(self.payments['created'])
         self.payments['updated'] = pandas.to_datetime(self.payments['updated'])
         self.payments['description'] = \
@@ -176,6 +176,19 @@ def _export(fname, payments, user, account_name, mode):
     _log.info('Wrote %s', fname + '.csv')
     payments.to_json(fname + '.json')
     _log.info('Wrote %s', fname + '.json')
+
+
+def payments_as_dataframe(
+        conf: str = 'bunq-sandbox.conf', payments_per_account: int = 200):
+    """Fetch payments from all accounts as pandas.DataFrame."""
+    _setup_context(conf)
+    accounts = Accounts()
+    dfs = [
+        Payments.fetch_account(account_id, payments_per_account).payments
+        for account_id, account_name in accounts.ids()
+    ]
+    combined_df = pandas.concat(dfs)
+    return combined_df.sort_values('created', ascending=False)
 
 
 def main():
