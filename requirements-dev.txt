@@ -4,3 +4,4 @@ nose
 pre-commit
 pylint
 twine
+coverage

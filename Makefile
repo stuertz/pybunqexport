@@ -7,7 +7,7 @@ pre-commit:
 	pre-commit run --all-files
 
 tests:
-	nosetests bunqexport
+	nosetests --with-coverage --cover-package bunqexport bunqexport
 
 upload:
 	python setup.py sdist
