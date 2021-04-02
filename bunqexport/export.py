@@ -1,5 +1,19 @@
 #!/usr/bin/env python -W ignore
 # -*- coding: utf-8 -*-
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 """ Connect to bunq api and create a csv/json file with all latest payments for
 every active account.
 
@@ -52,8 +66,12 @@ def _iter_all_payments(account_id, count=200):
         result = generated.endpoint.Payment.list(
             params=params, monetary_account_id=account_id
         )
-        _log.info('found %d while fetching last %d Payments for account %s',
-                  len(result.value), count, account_id)
+        _log.info(
+            'found %d while fetching last %d Payments for account %s',
+            len(result.value),
+            count,
+            account_id,
+        )
 
         if not result.value:
             break
@@ -74,7 +92,7 @@ def _get_all_payments(count, account_id=None):
     return result
 
 
-class Payments():
+class Payments:
     """
     Abstraction over bunq payments using a pandas dataframe
 
@@ -85,24 +103,28 @@ class Payments():
         self.payments = pandas.json_normalize(json.loads(payments))
         self.payments['created'] = pandas.to_datetime(self.payments['created'])
         self.payments['updated'] = pandas.to_datetime(self.payments['updated'])
-        self.payments['description'] = \
-            self.payments['description'].str.replace(r'\n', ' ')
+        self.payments['description'] = self.payments['description'].str.replace(
+            r'\n', ' '
+        )
 
     def __repr__(self):
         return self.payments.to_string(
-            columns=('created',
-                     'type',
-                     'counterparty_alias.name',
-                     'amount.currency',
-                     'amount.value',
-                     'description'),
+            columns=(
+                'created',
+                'type',
+                'counterparty_alias.name',
+                'amount.currency',
+                'amount.value',
+                'description',
+            ),
             show_dimensions=False,
             index=False,
             justify='left',
             formatters={
                 'created': lambda x: x.strftime('%d.%m.%Y'),
                 'description': lambda x: x.replace('\n', ' ').strip(),
-            })
+            },
+        )
 
     def to_csv(self, path_or_buf, mode=None):
         """Create a csv export from bunq data"""
@@ -110,7 +132,8 @@ class Payments():
             path_or_buf,
             date_format='%d.%m.%Y' if mode == 'lexware' else None,
             index=False,
-            line_terminator='\n' if sys.platform == 'win32' else '\r\n')
+            line_terminator='\n' if sys.platform == 'win32' else '\r\n',
+        )
 
     def to_json(self, path_or_buf):
         """Create a json export from flattened (depth=1) bunq data"""
@@ -128,7 +151,7 @@ class Payments():
         return Payments(data)
 
 
-class Accounts():  # pylint: disable=too-few-public-methods
+class Accounts:  # pylint: disable=too-few-public-methods
     """
     represent balances of of all active accounts
     """
@@ -138,20 +161,34 @@ class Accounts():  # pylint: disable=too-few-public-methods
         pagination.count = 50
 
         all_accounts = generated.endpoint.MonetaryAccountBank.list(
-            pagination.url_params_count_only).value
+            pagination.url_params_count_only
+        ).value
 
-        all_accounts.extend(generated.endpoint.MonetaryAccountSavings.list(
-            pagination.url_params_count_only).value)
+        all_accounts.extend(
+            generated.endpoint.MonetaryAccountSavings.list(
+                pagination.url_params_count_only
+            ).value
+        )
 
-        all_accounts.extend(generated.endpoint.MonetaryAccountJoint.list(
-            pagination.url_params_count_only).value)
+        all_accounts.extend(
+            generated.endpoint.MonetaryAccountJoint.list(
+                pagination.url_params_count_only
+            ).value
+        )
 
         self.balances = {
-            aacc.id_: (aacc.description, aacc.balance.currency,
-                       aacc.balance.value, aacc.description)
-            for aacc in (monetary_account_bank
-                         for monetary_account_bank in all_accounts
-                         if monetary_account_bank.status == 'ACTIVE')}
+            aacc.id_: (
+                aacc.description,
+                aacc.balance.currency,
+                aacc.balance.value,
+                aacc.description,
+            )
+            for aacc in (
+                monetary_account_bank
+                for monetary_account_bank in all_accounts
+                if monetary_account_bank.status == 'ACTIVE'
+            )
+        }
 
     def ids(self):
         """
@@ -161,8 +198,9 @@ class Accounts():  # pylint: disable=too-few-public-methods
             yield id_, val[3]
 
     def __repr__(self):
-        return '\n'.join((f'{v[0]} ({k}): {v[2]} {v[1]}'
-                          for k, v in self.balances.items()))
+        return '\n'.join(
+            (f'{v[0]} ({k}): {v[2]} {v[1]}' for k, v in self.balances.items())
+        )
 
 
 def _export(fname, payments, user, account_name, mode):
@@ -177,14 +215,16 @@ def _export(fname, payments, user, account_name, mode):
 
 
 def payments_as_dataframe(
-        conf: str = 'bunq-sandbox.conf', payments_per_account: int = 200):
+    conf: str = 'bunq-sandbox.conf', payments_per_account: int = 200
+):
     """Fetch payments from all accounts as pandas.DataFrame."""
     _setup_context(conf)
     accounts = Accounts()
     dfs = []
     for account_id, account_name in accounts.ids():
         df_of_account = Payments.fetch_account(
-            account_id, payments_per_account).payments
+            account_id, payments_per_account
+        ).payments
         df_of_account['account_name'] = account_name
         dfs.append(df_of_account)
     combined_df = pandas.concat(dfs)
@@ -196,19 +236,22 @@ def payments_as_dataframe(
 def main():
     """main entrypoint"""
     parser = argparse.ArgumentParser()
-    parser.add_argument('--conf', default='bunq-sandbox.conf',
-                        help='api config file')
-    parser.add_argument('--outfile', '-o', default=None,
-                        help='name of the export csv file')
-    parser.add_argument('--payments', default=200, type=int,
-                        help='Number of payments')
+    parser.add_argument(
+        '--conf', default='bunq-sandbox.conf', help='api config file')
+    parser.add_argument(
+        '--outfile', '-o', default=None, help='name of the export csv file'
+    )
+    parser.add_argument('--payments', default=200,
+                        type=int, help='Number of payments')
     parser.add_argument('--verbose', '-v', default=False, action='store_true')
     parser.add_argument('--mode', choices=['raw', 'lexware'], default='raw')
 
     args = parser.parse_args()
-    logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO,
-                        format='[%(levelname)-7s] %(message)s',
-                        stream=sys.stderr)
+    logging.basicConfig(
+        level=logging.DEBUG if args.verbose else logging.INFO,
+        format='[%(levelname)-7s] %(message)s',
+        stream=sys.stderr,
+    )
     # connect
     _setup_context(args.conf)
     user = generated.endpoint.User.get().value.get_referenced_object()

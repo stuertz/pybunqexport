@@ -12,15 +12,15 @@ rest API.
 
 ## Features
 
-* Connect to bunq (https://www.bunq.com) API with a pregenerated API
+- Connect to bunq (https://www.bunq.com) API with a pregenerated API
   key (see Tinker example: https://github.com/bunq/tinker_python)
-* Export payments from bunq as `json` and `csv` into one file per
+- Export payments from bunq as `json` and `csv` into one file per
   account
-* support special `csv` format with timestamps in `DD.MM.YYYY` format
+- support special `csv` format with timestamps in `DD.MM.YYYY` format
   in timstamps, as expected from `Haufe-Lexware Finanzmanger`, when
   mode is `lexware`
-* Unit testing using `nose`
-* Pre-commit checking with `pre-commit`
+- Unit testing using `nose`
+- Pre-commit checking with `pre-commit`
 
 ## Usage
 
@@ -56,5 +56,19 @@ making a change.
 1. Ensure any install or build dependencies are removed before the end
    of the layer when doing a build.
 2. Document your changes (whereever useful), e.g in `README.md`.
-3. Use `pre-commit` hooks by installing `pip install
-   pre-commit` and run `pre-commit install`.
+3. Use `pre-commit` hooks by installing `pip install pre-commit` and run `pre-commit install`.
+
+## License
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
