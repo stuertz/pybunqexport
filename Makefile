@@ -1,4 +1,4 @@
-# -*- mode: Makefile; encoding: utf-8 -*-
+# -*- mode: Makefile; coding: utf-8 -*-
 .PHONY:upload all pre-commit tests upload
 
 all: tests pre-commit
