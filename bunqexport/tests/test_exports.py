@@ -156,14 +156,14 @@ class TestPayments(unittest.TestCase):
 
     def test_csv_lexware(self):
         fobj = io.StringIO()
-        self.payments.to_csv(fobj, "lexware")
+        self.payments.to_csv(fobj, 'lexware')
         self.assertEqual(
             fobj.getvalue(),
-            "allow_chat,attachment,created,description,id,monetary_account_id,request_reference_split_the_bill,sub_type,type,updated,alias.name,alias.type,alias.value,amount.currency,amount.value,balance_after_mutation.currency,balance_after_mutation.value,counterparty_alias.name,counterparty_alias.type,counterparty_alias.value\r\n"
-            "False,[],23.12.2019,bunq account top up,232997638,1111111,[],PAYMENT,CHECKOUT_MERCHANT,23.12.2019,Felix Mustermann,IBAN,NL94BUNQXXXXXXXXX,EUR,200.00,EUR,200.00,bunq,IBAN,NL61BUNQYYYYYYYYYY\r\n"
-            "False,[],23.12.2019,Some Company ,233385317,1111111,[],PAYMENT,MASTERCARD,24.12.2019,Felix Mustermann,IBAN,NL94BUNQXXXXXXXXX,EUR,-16.96,EUR,183.04,Thank You,IBAN,\r\n"
-            "False,[],23.12.2019,,233385323,1111111,[],PAYMENT,SAVINGS,23.12.2019,Felix Mustermann,IBAN,NL94BUNQXXXXXXXXX,EUR,-0.04,EUR,183.00,Felix Mustermann,IBAN,NL45BUNQZZZZZZZZZZ\r\n"
-            "False,[],24.12.2019,---,233569632,1111111,[],SCT,EBA_SCT,24.12.2019,Felix Mustermann,IBAN,NL94BUNQXXXXXXXXX,EUR,500.00,EUR,683.00,Felix Mustermann,IBAN,DE831111111222222222222\r\n",
+            'allow_chat,attachment,created,description,id,monetary_account_id,request_reference_split_the_bill,sub_type,type,updated,alias.name,alias.type,alias.value,amount.currency,amount.value,balance_after_mutation.currency,balance_after_mutation.value,counterparty_alias.name,counterparty_alias.type,counterparty_alias.value\r\n'
+            'False,[],23.12.2019,bunq account top up,232997638,1111111,[],PAYMENT,CHECKOUT_MERCHANT,23.12.2019,Felix Mustermann,IBAN,NL94BUNQXXXXXXXXX,EUR,200.00,EUR,200.00,bunq,IBAN,NL61BUNQYYYYYYYYYY\r\n'
+            'False,[],23.12.2019,Some Company ,233385317,1111111,[],PAYMENT,MASTERCARD,24.12.2019,Felix Mustermann,IBAN,NL94BUNQXXXXXXXXX,EUR,-16.96,EUR,183.04,Thank You,IBAN,\r\n'
+            'False,[],23.12.2019,,233385323,1111111,[],PAYMENT,SAVINGS,23.12.2019,Felix Mustermann,IBAN,NL94BUNQXXXXXXXXX,EUR,-0.04,EUR,183.00,Felix Mustermann,IBAN,NL45BUNQZZZZZZZZZZ\r\n'
+            'False,[],24.12.2019,---,233569632,1111111,[],SCT,EBA_SCT,24.12.2019,Felix Mustermann,IBAN,NL94BUNQXXXXXXXXX,EUR,500.00,EUR,683.00,Felix Mustermann,IBAN,DE831111111222222222222\r\n',
         )
 
     def test_csv(self):
@@ -171,11 +171,11 @@ class TestPayments(unittest.TestCase):
         self.payments.to_csv(fobj)
         self.assertEqual(
             fobj.getvalue(),
-            "allow_chat,attachment,created,description,id,monetary_account_id,request_reference_split_the_bill,sub_type,type,updated,alias.name,alias.type,alias.value,amount.currency,amount.value,balance_after_mutation.currency,balance_after_mutation.value,counterparty_alias.name,counterparty_alias.type,counterparty_alias.value\r\n"
-            "False,[],2019-12-23 09:56:48.004134,bunq account top up,232997638,1111111,[],PAYMENT,CHECKOUT_MERCHANT,2019-12-23 09:56:48.004134,Felix Mustermann,IBAN,NL94BUNQXXXXXXXXX,EUR,200.00,EUR,200.00,bunq,IBAN,NL61BUNQYYYYYYYYYY\r\n"
-            "False,[],2019-12-23 17:31:34.703966,Some Company ,233385317,1111111,[],PAYMENT,MASTERCARD,2019-12-24 09:36:26.128422,Felix Mustermann,IBAN,NL94BUNQXXXXXXXXX,EUR,-16.96,EUR,183.04,Thank You,IBAN,\r\n"
-            "False,[],2019-12-23 17:31:34.856484,,233385323,1111111,[],PAYMENT,SAVINGS,2019-12-23 17:31:34.856484,Felix Mustermann,IBAN,NL94BUNQXXXXXXXXX,EUR,-0.04,EUR,183.00,Felix Mustermann,IBAN,NL45BUNQZZZZZZZZZZ\r\n"
-            "False,[],2019-12-24 07:00:46.074516,---,233569632,1111111,[],SCT,EBA_SCT,2019-12-24 07:00:46.074516,Felix Mustermann,IBAN,NL94BUNQXXXXXXXXX,EUR,500.00,EUR,683.00,Felix Mustermann,IBAN,DE831111111222222222222\r\n",
+            'allow_chat,attachment,created,description,id,monetary_account_id,request_reference_split_the_bill,sub_type,type,updated,alias.name,alias.type,alias.value,amount.currency,amount.value,balance_after_mutation.currency,balance_after_mutation.value,counterparty_alias.name,counterparty_alias.type,counterparty_alias.value\r\n'
+            'False,[],2019-12-23 09:56:48.004134,bunq account top up,232997638,1111111,[],PAYMENT,CHECKOUT_MERCHANT,2019-12-23 09:56:48.004134,Felix Mustermann,IBAN,NL94BUNQXXXXXXXXX,EUR,200.00,EUR,200.00,bunq,IBAN,NL61BUNQYYYYYYYYYY\r\n'
+            'False,[],2019-12-23 17:31:34.703966,Some Company ,233385317,1111111,[],PAYMENT,MASTERCARD,2019-12-24 09:36:26.128422,Felix Mustermann,IBAN,NL94BUNQXXXXXXXXX,EUR,-16.96,EUR,183.04,Thank You,IBAN,\r\n'
+            'False,[],2019-12-23 17:31:34.856484,,233385323,1111111,[],PAYMENT,SAVINGS,2019-12-23 17:31:34.856484,Felix Mustermann,IBAN,NL94BUNQXXXXXXXXX,EUR,-0.04,EUR,183.00,Felix Mustermann,IBAN,NL45BUNQZZZZZZZZZZ\r\n'
+            'False,[],2019-12-24 07:00:46.074516,---,233569632,1111111,[],SCT,EBA_SCT,2019-12-24 07:00:46.074516,Felix Mustermann,IBAN,NL94BUNQXXXXXXXXX,EUR,500.00,EUR,683.00,Felix Mustermann,IBAN,DE831111111222222222222\r\n',
         )
 
     def test_json(self):
@@ -280,13 +280,13 @@ class TestPayments(unittest.TestCase):
 
     def test_repr(self):
         self.assertEqual(
-            [l.rstrip() for l in str(self.payments).split("\n")],
+            [l.rstrip() for l in str(self.payments).split('\n')],
             [
-                "created    type              counterparty_alias.name amount.currency amount.value description",
-                "23.12.2019 CHECKOUT_MERCHANT             bunq        EUR             200.00       bunq account top up",
-                "23.12.2019        MASTERCARD        Thank You        EUR             -16.96              Some Company",
-                "23.12.2019           SAVINGS Felix Mustermann        EUR              -0.04",
-                "24.12.2019           EBA_SCT Felix Mustermann        EUR             500.00                       ---",
+                'created    type              counterparty_alias.name amount.currency amount.value description',
+                '23.12.2019 CHECKOUT_MERCHANT             bunq        EUR             200.00       bunq account top up',
+                '23.12.2019        MASTERCARD        Thank You        EUR             -16.96              Some Company',
+                '23.12.2019           SAVINGS Felix Mustermann        EUR              -0.04',
+                '24.12.2019           EBA_SCT Felix Mustermann        EUR             500.00                       ---',
             ],
         )
 
