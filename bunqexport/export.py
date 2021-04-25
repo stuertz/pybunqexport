@@ -221,15 +221,19 @@ def _export(fname, payments, user, account_name, mode):
 
 def payments_as_dataframe(
     conf: str = "bunq-sandbox.conf",
-    payments_per_account: int = 200,
+    payments_per_account: Optional[int] = None,
     df_old: Optional[pandas.DataFrame] = None,
 ):
     """Fetch payments from all accounts as pandas.DataFrame.
+
+    If payments_per_account not provided, all payments will be downloaded.
 
     Optionally pass an incomplete pandas.DataFrame to `df_old` such that
     existing data isn't downloaded again."""
     _setup_context(conf)
     accounts = Accounts()
+    if payments_per_account is None:
+        payments_per_account = sys.maxsize
     dfs = [] if df_old is None else [df_old]
     for account_id, account_name in accounts.ids():
         if df_old is not None:
