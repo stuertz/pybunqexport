@@ -27,6 +27,7 @@ import argparse
 import json
 import logging
 import sys
+from typing import Optional
 
 import bunq
 import bunq.sdk.context.api_context
@@ -48,11 +49,12 @@ def _setup_context(conf):
     bunq.sdk.context.bunq_context.BunqContext.load_api_context(api_context)
 
 
-def _iter_all_payments(account_id, count=200):
+def _iter_all_payments(account_id, count=200, present_ids=None):
     """Iterate over all payments of 'account_id' with steps of 'count'."""
     result = None
-
-    while result is None or result.value:
+    present_ids = present_ids or set()
+    should_stop = False
+    while (result is None or result.value) and not should_stop:
         if result is None:
             pagination = bunq.Pagination()
             pagination.count = count  # maximum number
@@ -76,12 +78,15 @@ def _iter_all_payments(account_id, count=200):
             break
 
         for payment in result.value:
+            if payment._id_ in present_ids:
+                should_stop = True
+                break
             yield payment
 
 
-def _get_all_payments(count, account_id=None):
+def _get_all_payments(count, account_id=None, present_ids=None):
     """Fetch all Payments wie bunq api in bunq_sdk format"""
-    payments_gen = _iter_all_payments(account_id, 200)
+    payments_gen = _iter_all_payments(account_id, 200, present_ids)
     result = []
     for _ in range(count):
         try:
@@ -100,11 +105,12 @@ class Payments:
 
     def __init__(self, payments):
         self.payments = pandas.json_normalize(json.loads(payments))
-        self.payments["created"] = pandas.to_datetime(self.payments["created"])
-        self.payments["updated"] = pandas.to_datetime(self.payments["updated"])
-        self.payments["description"] = self.payments["description"].str.replace(
-            r"\n", " "
-        )
+        if self.payments.size > 0:
+            self.payments["created"] = pandas.to_datetime(self.payments["created"])
+            self.payments["updated"] = pandas.to_datetime(self.payments["updated"])
+            self.payments["description"] = self.payments["description"].str.replace(
+                r"\n", " "
+            )
 
     def __repr__(self):
         return self.payments.to_string(
@@ -142,9 +148,9 @@ class Payments:
         return len(self.payments)
 
     @classmethod
-    def fetch_account(cls, account_id, count):
+    def fetch_account(cls, account_id, count, present_ids=None):
         """Fetch 'count' payments from 'account_id'."""
-        payments = _get_all_payments(count, account_id)
+        payments = _get_all_payments(count, account_id, present_ids)
         payments_as_json = (p.to_json() for p in reversed(payments))
         data = "[" + ",".join(payments_as_json) + "]"
         return Payments(data)
@@ -214,15 +220,24 @@ def _export(fname, payments, user, account_name, mode):
 
 
 def payments_as_dataframe(
-    conf: str = "bunq-sandbox.conf", payments_per_account: int = 200
+    conf: str = "bunq-sandbox.conf",
+    payments_per_account: int = 200,
+    df_old: Optional[pandas.DataFrame] = None,
 ):
-    """Fetch payments from all accounts as pandas.DataFrame."""
+    """Fetch payments from all accounts as pandas.DataFrame.
+
+    Optionally pass an incomplete pandas.DataFrame to `df_old` such that
+    existing data isn't downloaded again."""
     _setup_context(conf)
     accounts = Accounts()
-    dfs = []
+    dfs = [] if df_old is None else [df_old]
     for account_id, account_name in accounts.ids():
+        if df_old is not None:
+            present_ids = set(df_old[df_old["monetary_account_id"] == account_id].id)
+        else:
+            present_ids = set()
         df_of_account = Payments.fetch_account(
-            account_id, payments_per_account
+            account_id, payments_per_account, present_ids
         ).payments
         df_of_account["account_name"] = account_name
         dfs.append(df_of_account)
