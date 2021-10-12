@@ -9,6 +9,11 @@ pre-commit:
 tests:
 	nosetests --with-coverage --cover-package bunqexport bunqexport
 
-upload:
+dist:
+	rm -rf dist
 	python3 setup.py sdist
+	python3 setup.py bdist_egg
+	python3 setup.py bdist_wheel
+
+upload: dist
 	twine upload dist/*
