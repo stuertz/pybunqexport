@@ -1,4 +1,6 @@
 include requirements.txt
+include requirements-dev.txt
+include Vorlagen.dat
 
 # Exclude of pyo and pyc files, (dev) depdencies, caches
 global-exclude *.py[co] .gitkeep
