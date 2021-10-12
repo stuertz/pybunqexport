@@ -21,7 +21,7 @@ with io.open(os.path.join(HERE, "requirements-dev.txt"), encoding="utf-8") as f:
 
 setup(
     name="bunqexport",
-    version="0.0.2",
+    version="0.0.3",
     description="Convert bunq payments to csv",
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
