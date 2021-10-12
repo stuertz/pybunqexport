@@ -10,5 +10,5 @@ tests:
 	nosetests --with-coverage --cover-package bunqexport bunqexport
 
 upload:
-	python setup.py sdist
+	python3 setup.py sdist
 	twine upload dist/*
